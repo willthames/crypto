@@ -217,6 +217,7 @@ func (c *Client) postNoRetry(ctx context.Context, key crypto.Signer, url string,
 	if key == nil {
 		key = c.Key
 		kid = c.accountKID(ctx)
+		fmt.Printf("key=%s kid=%s", key, kid)
 	}
 	nonce, err := c.popNonce(ctx, url)
 	if err != nil {
