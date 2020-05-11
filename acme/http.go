@@ -217,13 +217,15 @@ func (c *Client) postNoRetry(ctx context.Context, key crypto.Signer, url string,
 	if key == nil {
 		key = c.Key
 		kid = c.accountKID(ctx)
-		fmt.Printf("key=%s kid=%s", key, kid)
+		fmt.Printf("key=%v kid=%v", key, kid)
 	}
+	fmt.Printf("key=%v kid=%v", key, kid)
 	nonce, err := c.popNonce(ctx, url)
 	if err != nil {
 		return nil, nil, err
 	}
 	b, err := jwsEncodeJSON(body, key, kid, nonce, url)
+	fmt.Printf("bytes=%s", string(b[:]))
 	if err != nil {
 		return nil, nil, err
 	}
@@ -243,6 +245,11 @@ func (c *Client) postNoRetry(ctx context.Context, key crypto.Signer, url string,
 // doNoRetry issues a request req, replacing its context (if any) with ctx.
 func (c *Client) doNoRetry(ctx context.Context, req *http.Request) (*http.Response, error) {
 	req.Header.Set("User-Agent", c.userAgent())
+	requestDump, err := httputil.DumpRequest(req, true)
+	if err != nil {
+		fmt.Println(err)
+	}
+	fmt.Println(string(requestDump))
 	res, err := c.httpClient().Do(req.WithContext(ctx))
 	if err != nil {
 		select {
