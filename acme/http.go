@@ -14,6 +14,7 @@ import (
 	"io/ioutil"
 	"math/big"
 	"net/http"
+	"net/http/httputil"
 	"strconv"
 	"strings"
 	"time"
@@ -217,15 +218,13 @@ func (c *Client) postNoRetry(ctx context.Context, key crypto.Signer, url string,
 	if key == nil {
 		key = c.Key
 		kid = c.accountKID(ctx)
-		fmt.Printf("key=%v kid=%v", key, kid)
 	}
-	fmt.Printf("key=%v kid=%v", key, kid)
+	fmt.Println("kid=%v", kid)
 	nonce, err := c.popNonce(ctx, url)
 	if err != nil {
 		return nil, nil, err
 	}
 	b, err := jwsEncodeJSON(body, key, kid, nonce, url)
-	fmt.Printf("bytes=%s", string(b[:]))
 	if err != nil {
 		return nil, nil, err
 	}
@@ -264,6 +263,12 @@ func (c *Client) doNoRetry(ctx context.Context, req *http.Request) (*http.Respon
 			return nil, err
 		}
 	}
+	responseDump, err := httputil.DumpResponse(res, true)
+	if err != nil {
+		fmt.Println(err)
+	}
+	fmt.Println(string(responseDump))
+
 	return res, nil
 }
 
